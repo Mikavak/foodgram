@@ -2,6 +2,7 @@ import base64
 
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
+from django.urls import reverse
 from rest_framework import serializers
 
 Person = get_user_model()
@@ -44,3 +45,7 @@ class PersonSerializer(serializers.ModelSerializer):
             'avatar')
 
 
+
+
+# def get_absolute_url(self):
+#     return reverse('post', kwargs={'post_id': self.request.id})

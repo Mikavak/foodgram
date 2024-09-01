@@ -7,7 +7,7 @@ from rest_framework.relations import SlugRelatedField
 from rest_framework.response import Response
 from rest_framework.validators import UniqueTogetherValidator
 
-from api.models import Tag, Ingredient_Recept, Ingredient, Recept, Tag_Recept
+from api.models import Tag, Ingredient_Recept, Ingredient, Recept, Tag_Recept, Favorite, Cart
 from api.validation import validat
 from persons.serializers import PersonSerializer
 
@@ -80,15 +80,28 @@ class ReceptPostSerializer(serializers.ModelSerializer):
         read_only=True,
         many=True)
     image = Base64ImageField(required=False, allow_null=True)
+    is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
+
+    def get_is_favorited(self, obj):
+        user = obj.author
+        return Favorite.objects.filter(user=user).exists()
+
+    def get_is_in_shopping_cart(self, obj):
+        user = obj.author
+        return Cart.objects.filter(user=user).exists()
+
 
     def validate(self, data):
         validat(self, data)
+
         return data
 
     def create(self, validated_data):
         ing = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
         recept = Recept.objects.create(**validated_data)
+        print(self.context['request'].data)
         for tag in tags:
             ta = Tag.objects.get(id=tag)
             Tag_Recept.objects.create(recept=recept, tag=ta)
@@ -148,7 +161,19 @@ class ReceptReadSerializer(serializers.ModelSerializer):
     author = PersonSerializer(read_only=True)
     ingredients = serializers.SerializerMethodField()
     image = Base64ImageField(required=False, allow_null=True)
+    is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
 
+    def get_is_in_shopping_cart(self, obj):
+        user = self.context['request'].user
+        if user.is_authenticated:
+            return Cart.objects.filter(user=user).exists()
+        return False
+    def get_is_favorited(self, obj):
+        user = self.context['request'].user
+        if user.is_authenticated:
+            return Favorite.objects.filter(user=user).exists()
+        return False
 
     def get_ingredients(self, obj):
         ing = Ingredient_Recept.objects.filter(recept=obj)

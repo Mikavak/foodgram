@@ -36,8 +36,6 @@ class Recept(models.Model):
         Ingredient, through='Ingredient_Recept')
     tags = models.ManyToManyField(Tag, through='Tag_Recept')
     cooking_time = models.IntegerField(default=0)
-    is_favorited = models.BooleanField(default=False)
-    is_in_shopping_cart = models.BooleanField(default=False)
 
     class Meta:
         verbose_name_plural = 'Рецепты'
@@ -83,3 +81,11 @@ class Cart(models.Model):
         on_delete=models.CASCADE,
         related_name='cart'
     )
+
+class ShortUrl(models.Model):
+    original_url = models.URLField(max_length=1024)
+    short_id = models.CharField(max_length=6, unique=True)
+
+class Favorite(models.Model):
+    user = models.ForeignKey(Person, on_delete=models.CASCADE)
+    recept = models.ForeignKey(Recept, on_delete=models.CASCADE, related_name='favorited_by')

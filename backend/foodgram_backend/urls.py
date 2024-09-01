@@ -13,6 +13,7 @@ urlpatterns = [
     path('api/', include('api.urls')),
     path('api/auth/', include('djoser.urls.authtoken')),
     path('api/users/me/avatar/', AvatarUpdate.as_view()),
+    # path(<short>, )
 ]
 
 if settings.DEBUG:
