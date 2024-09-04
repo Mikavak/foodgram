@@ -1,11 +1,22 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+
+from api.constant import TAG_LENGTH, MEASUREMENT, NAME_INGREDIENT, NAME_RECEPT, DEFAULT, SHORT_URL
+
 Person = get_user_model()
 
 
 class Tag(models.Model):
-    name = models.CharField(max_length=32, unique=True, null=False)
-    slug = models.SlugField(max_length=32, unique=True, null=False)
+    name = models.CharField(
+        max_length=TAG_LENGTH,
+        unique=True,
+        null=False,
+        verbose_name='Название тега')
+    slug = models.SlugField(
+        max_length=TAG_LENGTH,
+        unique=True,
+        null=False,
+        verbose_name='Слаг')
 
     class Meta:
         verbose_name_plural = 'Теги'
@@ -15,10 +26,15 @@ class Tag(models.Model):
         return self.name
 
 
-
 class Ingredient(models.Model):
-    name = models.CharField(max_length=128, unique=True, null=False)
-    measurement_unit = models.CharField(max_length=64)
+    name = models.CharField(
+        max_length=NAME_INGREDIENT,
+        unique=True,
+        null=False,
+        verbose_name='Название ингредиента')
+    measurement_unit = models.CharField(
+        max_length=MEASUREMENT,
+        verbose_name='Мера измерения')
 
     class Meta:
         verbose_name_plural = 'Ингридиенты'
@@ -27,47 +43,71 @@ class Ingredient(models.Model):
     def __str__(self):
         return self.name
 
+
 class Recept(models.Model):
-    author = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='recept')
-    name = models.CharField(max_length=100)
-    image = models.ImageField(upload_to='images/')
-    text = models.TextField()
+    author = models.ForeignKey(
+        Person,
+        on_delete=models.CASCADE,
+        related_name='recept',
+        verbose_name='Автор рецепта')
+    name = models.CharField(
+        max_length=NAME_RECEPT,
+        verbose_name='Название рецепта')
+    image = models.ImageField(
+        upload_to='images/',
+        verbose_name='Картинка рецепта')
+    text = models.TextField(
+        verbose_name='Описание рецепта'
+    )
     ingredients = models.ManyToManyField(
-        Ingredient, through='Ingredient_Recept')
-    tags = models.ManyToManyField(Tag, through='Tag_Recept')
-    cooking_time = models.IntegerField(default=0)
+        Ingredient,
+        through='IngredientRecept',
+        verbose_name='Ингредиенты рецепта')
+    tags = models.ManyToManyField(
+        Tag,
+        through='TagRecept',
+        verbose_name='Теги рецепта')
+    cooking_time = models.IntegerField(
+        default=DEFAULT,
+        verbose_name='Время приготовления')
+    short_url = models.CharField(
+        max_length=SHORT_URL,
+        verbose_name='Короткая ссылка',
+        blank=True
+    )
 
     class Meta:
         verbose_name_plural = 'Рецепты'
         verbose_name = 'рецепт'
 
+    def __str__(self):
+        return self.name
 
-class Ingredient_Recept(models.Model):
+
+class IngredientRecept(models.Model):
     recept = models.ForeignKey(
         Recept,
-        on_delete=models.CASCADE)
-        # related_name='ingredient_recept')
+        on_delete=models.CASCADE,
+        verbose_name='Рецепт')
     ingredient = models.ForeignKey(
         Ingredient,
-        on_delete=models.CASCADE)
-        #related_name='ingredient_recept')
-    amount = models.IntegerField(default=0)
+        on_delete=models.CASCADE,
+        verbose_name='Ингридиент')
+    amount = models.IntegerField(
+        default=DEFAULT,
+        verbose_name='Количество')
 
-    def __str__(self):
-        return str(self.amount)
 
-    # class Meta:
-    #     ordering = ['-id']
-    #     verbose_name = 'Количество ингридиента'
-    #     verbose_name_plural = 'Количество ингридиентов'
-    #     constraints = [
-    #         models.UniqueConstraint(fields=['ingredient', 'recipe'],
-    #                                 name='unique ingredients recipe')
-    #     ]
+class TagRecept(models.Model):
+    tag = models.ForeignKey(
+        Tag,
+        on_delete=models.CASCADE,
+        verbose_name='Тег')
+    recept = models.ForeignKey(
+        Recept,
+        on_delete=models.CASCADE,
+        verbose_name='Рецепт')
 
-class Tag_Recept(models.Model):
-    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
-    recept = models.ForeignKey(Recept, on_delete=models.CASCADE)
 
 class Cart(models.Model):
     user = models.ForeignKey(
@@ -79,13 +119,24 @@ class Cart(models.Model):
     recept = models.ForeignKey(
         Recept,
         on_delete=models.CASCADE,
-        related_name='cart'
+        related_name='cart',
+        verbose_name='Рецепт'
     )
 
-class ShortUrl(models.Model):
-    original_url = models.URLField(max_length=1024)
-    short_id = models.CharField(max_length=6, unique=True)
+    class Meta:
+        verbose_name = 'Корзина'
+
 
 class Favorite(models.Model):
-    user = models.ForeignKey(Person, on_delete=models.CASCADE)
-    recept = models.ForeignKey(Recept, on_delete=models.CASCADE, related_name='favorited_by')
+    user = models.ForeignKey(
+        Person,
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь')
+    recept = models.ForeignKey(
+        Recept,
+        on_delete=models.CASCADE,
+        related_name='favorited',
+        verbose_name='Рецепт')
+
+    class Meta:
+        verbose_name = 'Избранное'

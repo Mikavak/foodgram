@@ -1,7 +1,8 @@
 from django.contrib.auth import get_user_model
-from django.urls import path, include
+from django.urls import include, path
 from rest_framework import routers
-from api.views import TagViewSet, IngredientViewSet, ReceptViewSet
+
+from api.views import IngredientViewSet, ReceptViewSet, TagViewSet
 from persons.views import PersonViewSet
 
 Person = get_user_model()

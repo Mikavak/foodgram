@@ -1,18 +1,26 @@
+import random
+from urllib.parse import urljoin
+
+from django.db.models import Sum
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
+from django.utils.text import slugify
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, status, permissions, serializers
+from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from api.filters import IngredientFilter, ReceptFilter
-from api.models import Tag, Ingredient, Recept, Cart, Favorite
-from api.permission import IsOwnerOrReadOnly, IsOwner
-from api.serializers import TagSerializer, ReceptReadSerializer, ReceptPostSerializer, \
-    IngredientGetSerializer, ReceptCartSerializer
+from api.models import (Cart, Favorite, Ingredient, IngredientRecept, Recept,
+                        Tag)
+from api.pagination import Pagin
+from api.permission import IsOwner, IsOwnerOrReadOnly
+from api.serializers import (IngredientSerializer, ReceptCartSerializer,
+                             ReceptPostSerializer, ReceptReadSerializer,
+                             TagSerializer)
 from persons.models import Person
-# from persons.serializers import get_absolute_url
 
 
 class TagViewSet(viewsets.ModelViewSet):
@@ -20,23 +28,17 @@ class TagViewSet(viewsets.ModelViewSet):
     serializer_class = TagSerializer
     pagination_class = None
     permission_classes = (permissions.AllowAny,)
-    # filterset_class = TagFilter
     http_method_names = ['get']
-    # filter_backends =
-
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
-    serializer_class = IngredientGetSerializer
+    serializer_class = IngredientSerializer
     pagination_class = None
     permission_classes = (permissions.AllowAny,)
     filterset_class = IngredientFilter
     http_method_names = ['get']
 
-class Pagin(PageNumberPagination):
-    page_size = 6
-    page_size_query_param = 'limit'
 
 class ReceptViewSet(viewsets.ModelViewSet):
     queryset = Recept.objects.all()
@@ -44,52 +46,49 @@ class ReceptViewSet(viewsets.ModelViewSet):
     filterset_class = ReceptFilter
     filter_backends = (DjangoFilterBackend,)
 
-    # def create(self, request, *args, **kwargs):
-    #     print(request.data)
-    #     serializer = self.get_serializer(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
-    #     return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    # return Response(status=status.HTTP_200_OK)
-
     def get_serializer_class(self):
-        if self.action == 'create' or self.action == 'partial_update':
+        if (self.action == 'create'
+                or self.action == 'partial_update'):
             return ReceptPostSerializer
-        if self.action == 'list' or self.action == 'retrieve':
+        if (self.action == 'list'
+                or self.action == 'retrieve'):
             return ReceptReadSerializer
 
     def get_permissions(self):
-        if self.action in ['create','destroy']:
+        if self.action in ['create', 'destroy']:
             return (IsOwnerOrReadOnly(),)
-        if self.action in ['update','partial_update']:
+        if self.action in ['update', 'partial_update']:
             return (IsOwner(),)
         return (permissions.AllowAny(),)
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         if not instance:
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(
+                status=status.HTTP_204_NO_CONTENT)
         if self.request.user == instance.author:
             instance.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(
+                status=status.HTTP_204_NO_CONTENT)
         else:
-            return Response(status=status.HTTP_403_FORBIDDEN)
-    # def short_url(self, request):
+            return Response(
+                status=status.HTTP_403_FORBIDDEN)
 
     def perform_create(self, serializer):
-        # print(self.request.data)
-        # # print(get_absolute_url(self))
-        author = Person.objects.get(id=self.request.user.id)
+        author = Person.objects.get(
+            id=self.request.user.id)
         serializer.save(
             author=author,
             ingredients=self.request.data['ingredients'],
             tags=self.request.data['tags'])
 
-    def perform_update(self, serializer):
-        author = Person.objects.get(id=self.request.user.id)
-        serializer.save(author=author,
-                        ingredients=self.request.data['ingredients'],
-                        tags=self.request.data['tags'])
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = ReceptPostSerializer(
+            instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
 
     @action(detail=True,
             methods=['post', 'delete'],
@@ -100,19 +99,22 @@ class ReceptViewSet(viewsets.ModelViewSet):
         id = self.kwargs['pk']
         if not Recept.objects.filter(id=id):
             return Response(status=status.HTTP_404_NOT_FOUND)
-        recept = Recept.objects.filter(id=id)[0]
-        user = Person.objects.filter(id=self.request.user.id)
+        recept = Recept.objects.get(id=id)
+        user = Person.objects.get(id=self.request.user.id)
         if request.method == 'POST':
-            w=Cart.objects.filter(recept=id, user=user[0])
+            w = Cart.objects.filter(recept=id,
+                                    user=user)
             if not w:
-                Cart.objects.create(recept=recept, user=user[0])
+                Cart.objects.create(recept=recept,
+                                    user=user)
                 serializer = ReceptCartSerializer(recept)
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                return Response(
+                    serializer.data,
+                    status=status.HTTP_201_CREATED)
             else:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
         if request.method == 'DELETE':
             cart = Cart.objects.filter(recept=id)
-            #recept_not_in_cart = Recept.objects.filter(recept=id)
             if not cart:
                 return Response(status=status.HTTP_204_NO_CONTENT)
             cart.delete()
@@ -126,22 +128,75 @@ class ReceptViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         if not Recept.objects.filter(id=pk):
             return Response(status=status.HTTP_404_NOT_FOUND)
-        user = Person.objects.filter(id=self.request.user.id)[0]
-        recept = Recept.objects.filter(id=pk)[0]
+        user = Person.objects.get(id=self.request.user.id)
+        recept = Recept.objects.get(id=pk)
         if request.method == 'POST':
             if Favorite.objects.filter(recept=recept):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             else:
                 Favorite.objects.create(user=user, recept=recept)
                 serializer = ReceptCartSerializer(recept)
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                return Response(
+                    serializer.data,
+                    status=status.HTTP_201_CREATED)
         if request.method == 'DELETE':
-            favor = Favorite.objects.filter(recept=pk)
-            if not favor:
+            favorite = Favorite.objects.filter(recept=pk)
+            if not favorite:
                 return Response(status=status.HTTP_204_NO_CONTENT)
-            favor.delete()
+            favorite.delete()
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
+    @action(detail=True, methods=['get'],
+            permission_classes=[permissions.AllowAny],
+            url_path='get-link')
+    def get_link(self, request, pk=None):
+        recept = Recept.objects.get(id=pk)
+        if not recept.short_url:
+            short_url = slugify(
+                f'{recept.id}-{recept.name}'
+                f'{random.randint(0,100)}'
+            )
+            recept.short_url = short_url
+            recept.save()
+            content = {
+                'short-link': short_url
+            }
+            return Response(content, status=status.HTTP_200_OK)
+        else:
+            content = {
+                'short-link': recept.short_url
+            }
+            return Response(content, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'],)
+    def download_shopping_cart(self, request):
+        if self.request.user.is_anonymous:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        ingredients = IngredientRecept.objects.filter(
+            recept__cart__user=request.user
+        ).values(
+            'ingredient__name',
+            'ingredient__measurement_unit'
+        ).annotate(amount=Sum('amount'))
+        content = (
+            f'Список покупок:\n'
+        )
+        for ingredient in ingredients:
+            content += '\n'.join([
+                f'{ingredient["ingredient__name"]}'
+                f' {ingredient["amount"]}'
+                f' {ingredient["ingredient__measurement_unit"]}\n'
+
+            ])
+        response = HttpResponse(content, content_type='text/plain')
+        response['Content-Disposition'] \
+            = 'attachment; filename="buy_ingredients.txt"'
+
+        return response
 
 
-
+def redirect_to_recipe(request, short_url):
+    recept = get_object_or_404(Recept, short_url=short_url)
+    url = urljoin(request.META['HTTP_HOST'], recept.short_url)
+    return redirect(reverse(url))

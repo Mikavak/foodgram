@@ -4,6 +4,10 @@ from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from django.urls import reverse
 from rest_framework import serializers
+from rest_framework.relations import SlugRelatedField
+
+from api.models import Recept
+from persons.models import Follower
 
 Person = get_user_model()
 
@@ -19,10 +23,14 @@ class Base64ImageField(serializers.ImageField):
 
 
 class AvatarSerializer(serializers.ModelSerializer):
-    avatar = Base64ImageField(required=True, allow_null=True)
+    avatar = Base64ImageField(
+        required=True,
+        allow_null=True)
 
     def update(self, instance, validated_data):
-        instance.avatar = validated_data.get('avatar', instance.avatar)
+        instance.avatar = validated_data.get(
+            'avatar',
+            instance.avatar)
         instance.save()
         return instance
 
@@ -32,7 +40,6 @@ class AvatarSerializer(serializers.ModelSerializer):
 
 
 class PersonSerializer(serializers.ModelSerializer):
-    # avatar = AvatarSerializer(read_only=True)
     class Meta:
         model = Person
         fields = (
@@ -46,6 +53,76 @@ class PersonSerializer(serializers.ModelSerializer):
 
 
 
+class FollowerReceptSerialezer(serializers.ModelSerializer):
+    class Meta:
+        model = Recept
+        fields = ('id',
+                  'name',
+                  'image',
+                  'cooking_time')
 
-# def get_absolute_url(self):
-#     return reverse('post', kwargs={'post_id': self.request.id})
+
+class FollowerPostSerializer(serializers.ModelSerializer):
+    email = SlugRelatedField('email',
+                             read_only=True,
+                             source='following_id')
+    id = SlugRelatedField('id',
+                          read_only=True,
+                          source='following_id')
+    username = SlugRelatedField(
+        'username',
+        read_only=True,
+        source='following_id')
+    first_name = SlugRelatedField(
+        'first_name',
+        read_only=True,
+        source='following_id')
+    last_name = SlugRelatedField(
+        'last_name',
+        read_only=True,
+        source='following_id')
+    is_subscribed = SlugRelatedField(
+        'is_subscribed',
+        read_only=True,
+        source='following_id')
+    recipes = serializers.SerializerMethodField()
+    recipes_count = serializers.SerializerMethodField()
+    avatar = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Follower
+        fields = (
+            'id',
+            'email',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'avatar',
+            'recipes',
+            'recipes_count')
+
+    def get_recipes_count(self, obj):
+        return Recept.objects.filter(
+            author=obj.following_id.id).count()
+
+    def get_recipes(self, obj):
+        request = self.context.get('request')
+        limit = request.GET.get('recipes_limit')
+        list_recept = Recept.objects.filter(
+            author=obj.following_id.id)
+        if limit:
+            list_recept = list_recept[:int(limit)]
+        serializer_recipes = FollowerReceptSerialezer(
+            list_recept,
+            many=True)
+        return serializer_recipes.data
+
+    def get_avatar(self, obj):
+        if not Person.objects.filter(
+                id=obj.following_id.id)[0].avatar:
+            return None
+        print(self.context.get("request").get_full_path())
+        return (
+            f'{self.context.get("request").headers.get("Host")}'
+            f'/ {str(Person.objects.filter(id=obj.following_id.id)[0].avatar)}')

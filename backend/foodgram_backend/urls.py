@@ -2,8 +2,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth import get_user_model
-from django.urls import path, include
+from django.urls import include, path
+
+from api.views import redirect_to_recipe
 from persons.views import AvatarUpdate, MeList
+
 Person = get_user_model()
 
 
@@ -13,7 +16,7 @@ urlpatterns = [
     path('api/', include('api.urls')),
     path('api/auth/', include('djoser.urls.authtoken')),
     path('api/users/me/avatar/', AvatarUpdate.as_view()),
-    # path(<short>, )
+    path('<str:short_url>/', redirect_to_recipe)
 ]
 
 if settings.DEBUG:
