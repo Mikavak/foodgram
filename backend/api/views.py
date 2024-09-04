@@ -179,9 +179,7 @@ class ReceptViewSet(viewsets.ModelViewSet):
             'ingredient__name',
             'ingredient__measurement_unit'
         ).annotate(amount=Sum('amount'))
-        content = (
-            f'Список покупок:\n'
-        )
+        content = f'Список покупок:\n'
         for ingredient in ingredients:
             content += '\n'.join([
                 f'{ingredient["ingredient__name"]}'

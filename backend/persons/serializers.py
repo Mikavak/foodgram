@@ -2,7 +2,6 @@ import base64
 
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
-from django.urls import reverse
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 
@@ -50,7 +49,6 @@ class PersonSerializer(serializers.ModelSerializer):
             'last_name',
             'is_subscribed',
             'avatar')
-
 
 
 class FollowerReceptSerialezer(serializers.ModelSerializer):

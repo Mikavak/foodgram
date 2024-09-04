@@ -38,6 +38,7 @@ class Follower(models.Model):
                                      on_delete=models.CASCADE,
                                      related_name='followers',
                                      verbose_name='Автор')
+
     class Meta:
         ordering = ['-id']
         verbose_name = 'Подписка'

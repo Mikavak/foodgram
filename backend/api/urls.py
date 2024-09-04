@@ -19,5 +19,4 @@ api_router.register('users', PersonViewSet, basename='users')
 urlpatterns = [
     path('', include(api_router.urls)),
     path('', include('djoser.urls')),
-
 ]
