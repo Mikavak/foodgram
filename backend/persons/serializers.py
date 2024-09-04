@@ -123,4 +123,4 @@ class FollowerPostSerializer(serializers.ModelSerializer):
         print(self.context.get("request").get_full_path())
         return (
             f'{self.context.get("request").headers.get("Host")}'
-            f'/ {str(Person.objects.filter(id=obj.following_id.id)[0].avatar)}')
+            f'/{str(Person.objects.filter(id=obj.following_id.id)[0].avatar)}')
