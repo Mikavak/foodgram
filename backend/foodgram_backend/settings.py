@@ -47,7 +47,7 @@ SECRET_KEY = os.getenv(
 
 DEBUG = os.getenv('DEBUG', 'true').lower() == 'true'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['avakmik.ddns.net']
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
