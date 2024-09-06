@@ -1,11 +1,12 @@
-from django.test import TestCase
+from http import HTTPStatus
 
+from django.test import Client, TestCase
 
-class TestRoutes(TestCase):
+class TaskiAPITestCase(TestCase):
+    def setUp(self):
+        self.guest_client = Client()
 
-    def test_home_page(self):
-        # Вызываем метод get для клиента (self.client)
-        # и загружаем главную страницу.
-        response = self.client.get('/')
-        # Проверяем, что код ответа равен 200.
-        self.assertEqual(response.status_code, 200)
+    def test_list_exists(self):
+        """Проверка доступности списка задач."""
+        response = self.guest_client.get('/api/recipes/')
+        self.assertEqual(response.status_code, HTTPStatus.OK)
