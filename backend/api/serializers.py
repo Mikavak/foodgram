@@ -1,13 +1,12 @@
 import base64
 
-from django.core.files.base import ContentFile
-from rest_framework import serializers
-from rest_framework.relations import SlugRelatedField
-
 from api.models import (Cart, Favorite, Ingredient, IngredientRecept, Recept,
                         Tag, TagRecept)
 from api.validation import validat
+from django.core.files.base import ContentFile
 from persons.serializers import PersonSerializer
+from rest_framework import serializers
+from rest_framework.relations import SlugRelatedField
 
 
 class TagSerializer(serializers.ModelSerializer):

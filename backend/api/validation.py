@@ -1,7 +1,6 @@
-from rest_framework import serializers
-
 from api.constant import DEFAULT
 from api.models import Ingredient, Tag
+from rest_framework import serializers
 
 
 def validat(self, data):

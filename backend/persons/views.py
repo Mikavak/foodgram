@@ -1,6 +1,9 @@
 from django.contrib.auth import get_user_model
 from djoser import permissions
 from djoser.views import UserViewSet
+from persons.models import Follower
+from persons.serializers import (AvatarSerializer, FollowerPostSerializer,
+                                 PersonSerializer)
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import (DestroyAPIView, RetrieveAPIView,
@@ -8,10 +11,6 @@ from rest_framework.generics import (DestroyAPIView, RetrieveAPIView,
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
-from persons.models import Follower
-from persons.serializers import (AvatarSerializer, FollowerPostSerializer,
-                                 PersonSerializer)
 
 Person = get_user_model()
 
