@@ -3,6 +3,10 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://avakmik.ddns.net',
+]
+
 AUTH_USER_MODEL = 'persons.Person'
 
 DJOSER = {
@@ -45,13 +49,10 @@ SECRET_KEY = os.getenv(
     'SECRET_KEY',
     'django-insecure-9ksf43nel51zlp73vqt$92h-=8%r0i87rw6ecr5dajvek33%qv')
 
-DEBUG = os.getenv('DEBUG', 'true').lower() == 'true'
+DEBUG = os.getenv('DEBUG', 'false').lower() == 'true'
 
-ALLOWED_HOSTS = ['avakmik.ddns.net']
+ALLOWED_HOSTS = ['avakmik.ddns.net', 'localhost', '127.0.0.1']
 
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -66,7 +67,6 @@ INSTALLED_APPS = [
     'djoser',
     'persons',
     'api',
-    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -101,8 +101,12 @@ WSGI_APPLICATION = 'foodgram_backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('POSTGRES_DB', 'django'),
+        'USER': os.getenv('POSTGRES_USER', 'django'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', ''),
+        'PORT': os.getenv('DB_PORT', 5432)
     }
 }
 
@@ -132,6 +136,7 @@ USE_TZ = True
 
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'collected_static'
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

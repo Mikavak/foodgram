@@ -18,7 +18,7 @@ class ReceptFilter(django_filters.FilterSet):
         lookup_expr='exact')
     tags = django_filters.ModelMultipleChoiceFilter(
         queryset=Tag.objects.all(),
-        field_name='tags__name',
+        field_name='tags__slug',
         to_field_name='slug')
     is_favorited = django_filters.rest_framework.filters.BooleanFilter(
         method='filter_is_favorited')
