@@ -1,11 +1,12 @@
 import base64
 
-from api.models import Recept
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
-from persons.models import Follower
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
+
+from api.models import Recept
+from persons.models import Follower
 
 Person = get_user_model()
 

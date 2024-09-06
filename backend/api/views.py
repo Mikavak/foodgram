@@ -1,6 +1,17 @@
 import random
 from urllib.parse import urljoin
 
+from django.db.models import Sum
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
+from django.utils.text import slugify
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import permissions, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
 from api.filters import IngredientFilter, ReceptFilter
 from api.models import (Cart, Favorite, Ingredient, IngredientRecept, Recept,
                         Tag)
@@ -9,17 +20,7 @@ from api.permission import IsOwner, IsOwnerOrReadOnly
 from api.serializers import (IngredientSerializer, ReceptCartSerializer,
                              ReceptPostSerializer, ReceptReadSerializer,
                              TagSerializer)
-from django.db.models import Sum
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse
-from django.utils.text import slugify
-from django_filters.rest_framework import DjangoFilterBackend
 from persons.models import Person
-from rest_framework import permissions, status, viewsets
-from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 
 
 class TagViewSet(viewsets.ModelViewSet):
