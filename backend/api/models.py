@@ -1,8 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
-from api.constant import (TAG_LENGTH, MEASUREMENT, NAME_INGREDIENT,
-                          NAME_RECEPT, DEFAULT, SHORT_URL)
+from api.constant import (DEFAULT, MEASUREMENT, NAME_INGREDIENT, NAME_RECEPT,
+                          SHORT_URL, TAG_LENGTH)
 
 Person = get_user_model()
 
