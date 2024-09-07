@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'djoser',
     'persons',
     'api',
+    'foodgram_backend.management',
 ]
 
 MIDDLEWARE = [
