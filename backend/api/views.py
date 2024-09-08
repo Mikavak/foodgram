@@ -1,8 +1,3 @@
-import random
-from urllib.parse import urljoin
-
-from django.utils.crypto import get_random_string
-
 from api.filters import IngredientFilter, ReceptFilter
 from api.models import (Cart, Favorite, Ingredient, IngredientRecept, Recept,
                         Tag)
@@ -13,11 +8,10 @@ from api.serializers import (IngredientSerializer, ReceptCartSerializer,
                              TagSerializer)
 from django.db.models import Sum
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse
+from django.shortcuts import redirect
+from django.utils.crypto import get_random_string
 from django.utils.text import slugify
 from django_filters.rest_framework import DjangoFilterBackend
-
 from foodgram_backend import settings
 from persons.models import Person
 from rest_framework import permissions, status, viewsets
