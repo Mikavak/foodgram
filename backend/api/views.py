@@ -1,6 +1,8 @@
 import random
 from urllib.parse import urljoin
 
+from django.utils.crypto import get_random_string
+
 from api.filters import IngredientFilter, ReceptFilter
 from api.models import (Cart, Favorite, Ingredient, IngredientRecept, Recept,
                         Tag)
@@ -15,6 +17,8 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.text import slugify
 from django_filters.rest_framework import DjangoFilterBackend
+
+from foodgram_backend import settings
 from persons.models import Person
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
@@ -37,6 +41,17 @@ class IngredientViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.AllowAny,)
     filterset_class = IngredientFilter
     http_method_names = ['get']
+
+
+def get_or_create_short_link(recept):
+    if recept.short_url:
+        return recept.short_url
+
+    short_url = slugify(
+        f'{get_random_string(length=5)}')
+    recept.short_url = short_url
+    recept.save()
+    return short_url
 
 
 class ReceptViewSet(viewsets.ModelViewSet):
@@ -150,22 +165,9 @@ class ReceptViewSet(viewsets.ModelViewSet):
             url_path='get-link')
     def get_link(self, request, pk=None):
         recept = Recept.objects.get(id=pk)
-        if not recept.short_url:
-            short_url = slugify(
-                f'{recept.id}-{recept.name}'
-                f'{random.randint(0,100)}'
-            )
-            recept.short_url = short_url
-            recept.save()
-            content = {
-                'short-link': short_url
-            }
-            return Response(content, status=status.HTTP_200_OK)
-        else:
-            content = {
-                'short-link': recept.short_url
-            }
-            return Response(content, status=status.HTTP_200_OK)
+        short_url = get_or_create_short_link(recept)
+        content = {'short-link': short_url}
+        return Response(content, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['get'],)
     def download_shopping_cart(self, request):
@@ -194,6 +196,6 @@ class ReceptViewSet(viewsets.ModelViewSet):
 
 
 def redirect_to_recipe(request, short_url):
-    recept = get_object_or_404(Recept, short_url=short_url)
-    url = urljoin(request.META['HTTP_HOST'], recept.id)
-    return redirect(reverse(url))
+    recept = Recept.objects.get(short_url=short_url)
+    url = (f'{settings.FRONTEND_URL}/recipes/{recept.id}')
+    return redirect(url)
