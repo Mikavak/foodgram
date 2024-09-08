@@ -76,7 +76,11 @@ class Recept(models.Model):
         blank=True
     )
 
+    def total_favorites(self):
+        return Favorite.objects.filter(recept=self).count()
+
     class Meta:
+        ordering = ['-id']
         verbose_name_plural = 'Рецепты'
         verbose_name = 'рецепт'
 
@@ -97,6 +101,12 @@ class IngredientRecept(models.Model):
         default=DEFAULT,
         verbose_name='Количество')
 
+    def __str__(self):
+        return self.recept.name
+
+    class Meta:
+        verbose_name_plural = 'Ингредиент и Рецепт'
+
 
 class TagRecept(models.Model):
     tag = models.ForeignKey(
@@ -107,6 +117,12 @@ class TagRecept(models.Model):
         Recept,
         on_delete=models.CASCADE,
         verbose_name='Рецепт')
+
+    def __str__(self):
+        return self.recept.name
+
+    class Meta:
+        verbose_name_plural = 'Таг и Рецепт'
 
 
 class Cart(models.Model):
@@ -124,7 +140,7 @@ class Cart(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Корзина'
+        verbose_name_plural = 'Корзина'
 
 
 class Favorite(models.Model):
@@ -139,4 +155,4 @@ class Favorite(models.Model):
         verbose_name='Рецепт')
 
     class Meta:
-        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранное'

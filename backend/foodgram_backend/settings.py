@@ -51,8 +51,10 @@ SECRET_KEY = os.getenv(
 
 DEBUG = os.getenv('DEBUG', 'false').lower() == 'true'
 
-ALLOWED_HOSTS = ['avakmik.ddns.net', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost'] if not os.getenv(
+    'HOSTS') else os.getenv('HOSTS').split(';')
 
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'https://avakmik.ddns.net')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -67,7 +69,7 @@ INSTALLED_APPS = [
     'djoser',
     'persons',
     'api',
-    'foodgram_backend.management',
+    'foodgram_backend',
 ]
 
 MIDDLEWARE = [
@@ -127,7 +129,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru-RU'
 
 TIME_ZONE = 'UTC'
 

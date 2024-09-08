@@ -27,6 +27,12 @@ class Person(AbstractUser):
                        'first_name',
                        'last_name']
 
+    class Meta:
+        verbose_name_plural = 'Пользователи'
+
+    def __str__(self):
+        return f'{self.first_name} {self.last_name}'
+
 
 class Follower(models.Model):
     user_id = models.ForeignKey(Person,
@@ -40,4 +46,4 @@ class Follower(models.Model):
 
     class Meta:
         ordering = ['-id']
-        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписка'

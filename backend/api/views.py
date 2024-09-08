@@ -130,7 +130,7 @@ class ReceptViewSet(viewsets.ModelViewSet):
         user = Person.objects.get(id=self.request.user.id)
         recept = Recept.objects.get(id=pk)
         if request.method == 'POST':
-            if Favorite.objects.filter(recept=recept):
+            if Favorite.objects.filter(recept=recept, user=user):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             else:
                 Favorite.objects.create(user=user, recept=recept)
@@ -139,7 +139,7 @@ class ReceptViewSet(viewsets.ModelViewSet):
                     serializer.data,
                     status=status.HTTP_201_CREATED)
         if request.method == 'DELETE':
-            favorite = Favorite.objects.filter(recept=pk)
+            favorite = Favorite.objects.filter(recept=pk, user=user)
             if not favorite:
                 return Response(status=status.HTTP_204_NO_CONTENT)
             favorite.delete()
@@ -195,5 +195,5 @@ class ReceptViewSet(viewsets.ModelViewSet):
 
 def redirect_to_recipe(request, short_url):
     recept = get_object_or_404(Recept, short_url=short_url)
-    url = urljoin(request.META['HTTP_HOST'], recept.short_url)
+    url = urljoin(request.META['HTTP_HOST'], recept.id)
     return redirect(reverse(url))
