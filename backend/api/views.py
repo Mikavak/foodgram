@@ -194,6 +194,7 @@ class ReceptViewSet(viewsets.ModelViewSet):
 
         return response
 
+
 def redirect_to_recipe(request, short_url):
     recept = Recept.objects.get(short_url=short_url)
     url = (f'{settings.FRONTEND_URL}/recipes/{recept.id}')
