@@ -54,7 +54,7 @@ DEBUG = os.getenv('DEBUG', 'false').lower() == 'true'
 ALLOWED_HOSTS = ['localhost'] if not os.getenv(
     'HOSTS') else os.getenv('HOSTS').split(';')
 
-FRONTEND_URL = os.getenv('FRONTEND_URL', 'https://avakmik.ddns.net')
+FRONTEND_URL = 'https://avakmik.ddns.net'
 
 INSTALLED_APPS = [
     'django.contrib.admin',

@@ -11,7 +11,7 @@ Person = get_user_model()
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('<str:short_url>/', redirect_to_recipe, name='redirect_to_recipe'),
+    path('s/<str:short_url>/', redirect_to_recipe, name='redirect_to_recipe'),
     path('api/users/me/', MeList.as_view()),
     path('api/', include('api.urls')),
     path('api/auth/', include('djoser.urls.authtoken')),
