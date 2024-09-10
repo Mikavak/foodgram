@@ -56,8 +56,8 @@ def validat(self, data):
     if self.initial_data.get('cooking_time') is None:
         raise serializers.ValidationError(
             {'cooking_time': 'Нет времени'})
-    if self.initial_data.get('cooking_time') == DEFAULT:
+    if int(self.initial_data.get('cooking_time')) <= DEFAULT:
         raise serializers.ValidationError({
-            'cooking_time': 'Нужен  время для рецепта'})
+            'cooking_time': 'Минимальное время приготовления 1 минута'})
 
     return data
