@@ -83,6 +83,8 @@ class ReceptPostSerializer(serializers.ModelSerializer):
             user=obj.author).exists()
 
     def validate(self, data):
+        data['ingredients'] = self.initial_data['ingredients']
+        data['tags'] = self.initial_data['tags']
         validat(self, data)
         return data
 
@@ -105,6 +107,37 @@ class ReceptPostSerializer(serializers.ModelSerializer):
 
     def perform_create(self, serializer):
         serializer.save(author=self.context['request'].user)
+
+    def update(self, instance, validated_data):
+        ingredients_data = validated_data.pop('ingredients')
+        tags_data = validated_data.pop('tags')
+
+        instance.name = validated_data.get('name', instance.name)
+        instance.text = validated_data.get('text', instance.text)
+        instance.cooking_time = validated_data.get('cooking_time',
+                                                   instance.cooking_time)
+
+        if 'image' in validated_data:
+            instance.image = validated_data['image']
+
+        instance.save()
+
+        if ingredients_data:
+            IngredientRecept.objects.filter(recept=instance).delete()
+            for ingredient in ingredients_data:
+                obj_ing = Ingredient.objects.get(id=ingredient['id'])
+                IngredientRecept.objects.create(recept=instance,
+                                                ingredient=obj_ing,
+                                                amount=ingredient['amount'])
+
+        if tags_data:
+            TagRecept.objects.filter(recept=instance.id).delete()
+            for tag in tags_data:
+                obj_tag = Tag.objects.get(id=tag)
+                TagRecept.objects.create(recept=instance,
+                                         tag=obj_tag)
+
+        return instance
 
     class Meta:
         model = Recept

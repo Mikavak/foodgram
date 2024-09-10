@@ -97,7 +97,7 @@ class ReceptViewSet(viewsets.ModelViewSet):
         serializer = ReceptPostSerializer(
             instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
+        serializer.save()
         return Response(serializer.data)
 
     @action(detail=True,
