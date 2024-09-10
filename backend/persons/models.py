@@ -47,3 +47,7 @@ class Follower(models.Model):
     class Meta:
         ordering = ['-id']
         verbose_name_plural = 'Подписка'
+        verbose_name = 'подписка'
+
+    def __str__(self):
+        return f'{self.user_id} подписан на {self.following_id}'

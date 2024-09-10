@@ -24,7 +24,7 @@ class PersonAdmin(admin.ModelAdmin):
 class ReceptAdmin(admin.ModelAdmin):
     search_fields = ['name', 'author__email']
     list_filter = ('tags',)
-    list_display = ('name', 'created_at', 'total_favorites')
+    list_display = ('name', 'total_favorites')
     inlines = [IngredientReceptInline, TagReceptInline]
 
     def save_model(self, request, obj, form, change):

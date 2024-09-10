@@ -140,6 +140,7 @@ class Cart(models.Model):
     )
 
     class Meta:
+        verbose_name = 'корзина'
         verbose_name_plural = 'Корзина'
 
 
@@ -155,4 +156,5 @@ class Favorite(models.Model):
         verbose_name='Рецепт')
 
     class Meta:
+        verbose_name = 'избранное'
         verbose_name_plural = 'Избранное'
