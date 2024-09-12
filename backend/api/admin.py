@@ -2,7 +2,7 @@ from django.contrib import admin
 from persons.models import Follower, Person
 from rest_framework.exceptions import ValidationError
 
-from .constant import DEFAULT
+from .forms import ReceptForm
 from .models import (Cart, Favorite, Ingredient, IngredientRecept, Recept, Tag,
                      TagRecept)
 
@@ -26,20 +26,21 @@ class ReceptAdmin(admin.ModelAdmin):
     list_filter = ('tags',)
     list_display = ('name', 'total_favorites')
     inlines = [IngredientReceptInline, TagReceptInline]
-
-    def save_model(self, request, obj, form, change):
-        super().save_model(request, obj, form, change)
-
-    def save_related(self, request, form, formsets, change):
-        super().save_related(request, form, formsets, change)
-        recept = form.instance
-        if not recept.ingredients.exists():
-            raise ValidationError(
-                "Добавить один ингредиент.")
-        if not recept.tags.exists():
-            raise ValidationError("Добавить один тэг")
-        if int(recept.cooking_time) <= DEFAULT:
-            raise ValidationError("Время не меньше 1 минуты")
+    form = ReceptForm
+    #
+    # def save_model(self, request, obj, form, change):
+    #     super().save_model(request, obj, form, change)
+    #
+    # def save_related(self, request, form, formsets, change):
+    #     super().save_related(request, form, formsets, change)
+    #     recept = form.instance
+    #     if not recept.ingredients.exists():
+    #         raise ValidationError(
+    #             "Добавить один ингредиент.")
+    #     if not recept.tags.exists():
+    #         raise ValidationError("Добавить один тэг")
+    #     if int(recept.cooking_time) <= DEFAULT:
+    #         raise ValidationError("Время не меньше 1 минуты")
 
 
 class FollowerAdmin(admin.ModelAdmin):
