@@ -1,5 +1,6 @@
 from api.constant import DEFAULT
 from api.models import Ingredient, Tag
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
 
@@ -61,3 +62,12 @@ def validat(self, data):
             'cooking_time': 'Минимальное время приготовления 1 минута'})
 
     return data
+
+
+def validate_ingredients_amount(data):
+    total_forms = int(data.get('ingredientrecept_set-TOTAL_FORMS', 0))
+
+    for i in range(total_forms):
+        amount = data.get(f'ingredientrecept_set-{i}-amount')
+        if amount and int(amount) <= 0:
+            raise ValidationError('Количество ингредиента не может быть ноль')

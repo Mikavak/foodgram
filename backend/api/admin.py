@@ -1,8 +1,7 @@
 from django.contrib import admin
 from persons.models import Follower, Person
-from rest_framework.exceptions import ValidationError
 
-from .forms import ReceptForm
+from .forms import CartForm, FavoriterForm, FollowerForm, ReceptForm
 from .models import (Cart, Favorite, Ingredient, IngredientRecept, Recept, Tag,
                      TagRecept)
 
@@ -24,40 +23,13 @@ class PersonAdmin(admin.ModelAdmin):
 class ReceptAdmin(admin.ModelAdmin):
     search_fields = ['name', 'author__email']
     list_filter = ('tags',)
-    list_display = ('name', 'total_favorites')
+    list_display = ('name', 'created_at', 'total_favorites')
     inlines = [IngredientReceptInline, TagReceptInline]
     form = ReceptForm
-    #
-    # def save_model(self, request, obj, form, change):
-    #     super().save_model(request, obj, form, change)
-    #
-    # def save_related(self, request, form, formsets, change):
-    #     super().save_related(request, form, formsets, change)
-    #     recept = form.instance
-    #     if not recept.ingredients.exists():
-    #         raise ValidationError(
-    #             "Добавить один ингредиент.")
-    #     if not recept.tags.exists():
-    #         raise ValidationError("Добавить один тэг")
-    #     if int(recept.cooking_time) <= DEFAULT:
-    #         raise ValidationError("Время не меньше 1 минуты")
 
 
 class FollowerAdmin(admin.ModelAdmin):
-    def save_model(self, request, obj, form, change):
-        print(obj.user_id)
-        if Follower.objects.filter(user_id=obj.user_id,
-                                   following_id=obj.following_id).exists():
-            raise ValidationError(
-                "Такая подписка уже есть")
-        super().save_model(request, obj, form, change)
-
-    def save_related(self, request, form, formsets, change):
-        super().save_related(request, form, formsets, change)
-        user = form.instance
-        if user.user_id == user.following_id:
-            raise ValidationError(
-                "Сам на себя не подписаться")
+    form = FollowerForm
 
 
 class IngredientAdmin(admin.ModelAdmin):
@@ -76,11 +48,13 @@ class IngredientReceptAdmin(admin.ModelAdmin):
 class CartAdmin(admin.ModelAdmin):
     list_filter = ('user',)
     list_display = ('recept', 'user')
+    form = CartForm
 
 
 class FavoriteAdmin(admin.ModelAdmin):
     list_filter = ('user',)
     list_display = ('recept', 'user')
+    form = FavoriterForm
 
 
 admin.site.register(Tag)
