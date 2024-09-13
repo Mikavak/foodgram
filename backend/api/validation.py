@@ -1,7 +1,8 @@
-from api.constant import DEFAULT
-from api.models import Ingredient, Tag
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
+
+from api.constant import DEFAULT
+from api.models import Ingredient, Tag
 
 
 def validat(self, data):

@@ -1,11 +1,12 @@
 import base64
 
-from api.models import Recept
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
-from persons.models import Follower
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
+
+from api.models import Recept
+from persons.models import Follower
 
 Person = get_user_model()
 
@@ -119,7 +120,6 @@ class FollowerPostSerializer(serializers.ModelSerializer):
         if not Person.objects.filter(
                 id=obj.following_id.id)[0].avatar:
             return None
-        print(self.context.get("request").get_full_path())
         return (
             f'{self.context.get("request").headers.get("Host")}'
             f'/{str(Person.objects.filter(id=obj.following_id.id)[0].avatar)}')

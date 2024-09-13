@@ -1,3 +1,15 @@
+from django.db.models import Sum
+from django.http import HttpResponse
+from django.shortcuts import redirect
+from django.utils.crypto import get_random_string
+from django.utils.text import slugify
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import permissions, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.filters import OrderingFilter
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
 from api.filters import IngredientFilter, ReceptFilter
 from api.models import (Cart, Favorite, Ingredient, IngredientRecept, Recept,
                         Tag)
@@ -6,18 +18,8 @@ from api.permission import IsOwner, IsOwnerOrReadOnly
 from api.serializers import (IngredientSerializer, ReceptCartSerializer,
                              ReceptPostSerializer, ReceptReadSerializer,
                              TagSerializer)
-from django.db.models import Sum
-from django.http import HttpResponse
-from django.shortcuts import redirect
-from django.utils.crypto import get_random_string
-from django.utils.text import slugify
-from django_filters.rest_framework import DjangoFilterBackend
 from foodgram_backend import settings
 from persons.models import Person
-from rest_framework import permissions, status, viewsets
-from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 
 
 class TagViewSet(viewsets.ModelViewSet):
@@ -52,7 +54,9 @@ class ReceptViewSet(viewsets.ModelViewSet):
     queryset = Recept.objects.all()
     pagination_class = Pagin
     filterset_class = ReceptFilter
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (DjangoFilterBackend, OrderingFilter,)
+    ordering_fields = ('name', 'id')
+    ordering = ('-id',)
 
     def get_serializer_class(self):
         if (self.action == 'create'
@@ -134,8 +138,6 @@ class ReceptViewSet(viewsets.ModelViewSet):
             methods=['post', 'delete'],
             permission_classes=[IsAuthenticated])
     def favorite(self, request, pk=None):
-        if self.request.user.is_anonymous:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
         if not Recept.objects.filter(id=pk):
             return Response(status=status.HTTP_404_NOT_FOUND)
         user = Person.objects.get(id=self.request.user.id)

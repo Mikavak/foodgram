@@ -1,24 +1,26 @@
-from api.constant import MAX_NAME_LENGTH
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+
+from api.constant import FIRST_NAME_LENGTH, LAST_NAME_LENGTH
 
 
 class Person(AbstractUser):
     avatar = models.ImageField(
         upload_to='avatar/',
         null=True,
-        default=None
+        default=None,
+        verbose_name='Аватар'
     )
     is_subscribed = models.BooleanField(
         default=False)
     first_name = models.CharField(
         _("first name"),
-        max_length=MAX_NAME_LENGTH,
+        max_length=FIRST_NAME_LENGTH,
         blank=False)
     last_name = models.CharField(
         _("last name"),
-        max_length=MAX_NAME_LENGTH,
+        max_length=LAST_NAME_LENGTH,
         blank=False)
 
     email = models.EmailField(unique=True)
@@ -28,6 +30,8 @@ class Person(AbstractUser):
                        'last_name']
 
     class Meta:
+        ordering = ['email']
+        verbose_name = 'пользователи'
         verbose_name_plural = 'Пользователи'
 
     def __str__(self):
@@ -45,9 +49,9 @@ class Follower(models.Model):
                                      verbose_name='Автор')
 
     class Meta:
-        ordering = ['-id']
-        verbose_name_plural = 'Подписка'
+        ordering = ['user_id']
         verbose_name = 'подписка'
+        verbose_name_plural = 'Подписка'
 
     def __str__(self):
         return f'{self.user_id} подписан на {self.following_id}'

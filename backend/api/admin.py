@@ -1,9 +1,9 @@
 from django.contrib import admin
-from persons.models import Follower, Person
 
 from .forms import CartForm, FavoriterForm, FollowerForm, ReceptForm
 from .models import (Cart, Favorite, Ingredient, IngredientRecept, Recept, Tag,
                      TagRecept)
+from persons.models import Follower, Person
 
 
 class IngredientReceptInline(admin.TabularInline):

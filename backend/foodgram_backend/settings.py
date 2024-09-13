@@ -3,9 +3,7 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-CSRF_TRUSTED_ORIGINS = [
-    'https://avakmik.ddns.net',
-]
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED')
 
 AUTH_USER_MODEL = 'persons.Person'
 
@@ -45,9 +43,7 @@ REST_FRAMEWORK = {
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, '/media')
 
-SECRET_KEY = os.getenv(
-    'SECRET_KEY',
-    'django-insecure-9ksf43nel51zlp73vqt$92h-=8%r0i87rw6ecr5dajvek33%qv')
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 DEBUG = os.getenv('DEBUG', 'false').lower() == 'true'
 
@@ -131,7 +127,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'ru-RU'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 

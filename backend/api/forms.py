@@ -1,15 +1,14 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from persons.models import Follower
 
 from .models import Cart, Favorite, Recept
 from .validation import validate_ingredients_amount
+from persons.models import Follower
 
 
 class ReceptForm(forms.ModelForm):
 
     def clean(self):
-        print(self.data)
         cleaned_data = super().clean()
         cooking_time = cleaned_data.get("cooking_time")
         tags = self.data.getlist('tagrecept_set-0-tag')
@@ -48,7 +47,6 @@ class FollowerForm(forms.ModelForm):
 class FavoriterForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
-        print(cleaned_data)
         if Favorite.objects.filter(
                 user=cleaned_data.get(('user')),
                 recept=cleaned_data.get(('recept'))):
@@ -58,7 +56,6 @@ class FavoriterForm(forms.ModelForm):
 class CartForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
-        print(cleaned_data)
         if Cart.objects.filter(
                 user=cleaned_data.get(('user')),
                 recept=cleaned_data.get(('recept'))):
