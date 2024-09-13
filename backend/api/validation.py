@@ -5,7 +5,7 @@ from api.constant import DEFAULT
 from api.models import Ingredient, Tag
 
 
-def validat(self, data):
+def validate(self, data):
     """Валидация вводных данных при создании рецепта"""
 
     # Валидация Тэги

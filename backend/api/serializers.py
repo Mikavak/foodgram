@@ -6,7 +6,7 @@ from rest_framework.relations import SlugRelatedField
 
 from api.models import (Cart, Favorite, Ingredient, IngredientRecept, Recept,
                         Tag, TagRecept)
-from api.validation import validat
+from api.validation import validate
 from persons.serializers import PersonSerializer
 
 
@@ -86,7 +86,7 @@ class ReceptPostSerializer(serializers.ModelSerializer):
     def validate(self, data):
         data['ingredients'] = self.initial_data['ingredients']
         data['tags'] = self.initial_data['tags']
-        validat(self, data)
+        validate(self, data)
         return data
 
     def create(self, validated_data):
