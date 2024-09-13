@@ -3,7 +3,7 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED').split(',')
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED')
 
 AUTH_USER_MODEL = 'persons.Person'
 
