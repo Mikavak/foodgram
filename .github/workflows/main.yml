@@ -12,9 +12,9 @@ jobs:
       postgres:
         image: postgres:13.10
         env:
-          POSTGRES_USER: django_user
-          POSTGRES_PASSWORD: django_password
-          POSTGRES_DB: django_db
+          POSTGRES_USER: django
+          POSTGRES_PASSWORD: django
+          POSTGRES_DB: django
         ports:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
@@ -32,9 +32,9 @@ jobs:
         pip install -r ./backend/requirements.txt
     - name: Test with flake8 and django tests
       env:
-        POSTGRES_USER: django_user
-        POSTGRES_PASSWORD: django_password
-        POSTGRES_DB: django_db
+        POSTGRES_USER: django
+        POSTGRES_PASSWORD: django
+        POSTGRES_DB: django
         DB_HOST: 127.0.0.1
         DB_PORT: 5432
         CSRF_TRUSTED: ${{ secrets.CSRF_TRUSTED }}
@@ -121,7 +121,7 @@ jobs:
         username: ${{ secrets.USER }}
         password: ${{ secrets.SSH_PASSWORD}}
         source: "docker-compose.production.yml"
-        target: "taski"
+        target: "foodgram"
     - name: Executing remote ssh commands to deploy
       uses: appleboy/ssh-action@master
       with:
